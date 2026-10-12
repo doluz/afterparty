@@ -20,9 +20,9 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U postgres" --health-interval 2s --health-retries 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: astral-sh/setup-uv@v6
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -38,5 +38,5 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: docker build -t afterparty:ci .
