@@ -12,6 +12,11 @@ export function setTokenGetter(fn: (() => Promise<string | null>) | null) {
   getAuthHeader = fn
 }
 
+/** The Authorization header value this session sends ("Bearer …" or, in local mode, "Dev …"). */
+export async function authHeader(): Promise<string | null> {
+  return getAuthHeader ? getAuthHeader() : null
+}
+
 export class ApiError extends Error {
   status: number
   constructor(status: number, message: string) {

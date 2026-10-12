@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ErrorNote, Spinner } from '../components/bits'
 import { PageTitle } from '../components/Shell'
-import { api, useMe, useStartSync, useSync } from '../lib/api'
+import { api, authHeader, useMe, useStartSync, useSync } from '../lib/api'
 import { useAuth } from '../lib/auth'
 import { ago, dayYear, n } from '../lib/format'
 
@@ -24,6 +24,15 @@ export function Settings() {
   const qc = useQueryClient()
   const nav = useNavigate()
   const [confirm, setConfirm] = useState('')
+  const [copied, setCopied] = useState(false)
+
+  const copyToken = async () => {
+    const value = await authHeader()
+    if (!value) return
+    await navigator.clipboard.writeText(value)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   const disconnect = useMutation({
     mutationFn: () => api('/api/partiful', { method: 'DELETE' }),
@@ -94,6 +103,18 @@ export function Settings() {
         <a href="/afterparty-extension.zip" download className="btn btn-quiet mt-4">
           Download the connector
         </a>
+      </Card>
+
+      <Card title="API access for agents">
+        <p className="max-w-lg text-small text-mute">
+          Scripts and AI agents can use the same JSON API as this app. Copy the token and give it to the agent as{' '}
+          <code className="text-ink">AFTERPARTY_AUTH</code>, with this address as <code className="text-ink">AFTERPARTY_URL</code>.
+          With Google or email sign-in, the token expires after one hour.
+        </p>
+        <button type="button" className="btn btn-quiet mt-4" onClick={() => void copyToken()}>
+          {copied ? 'Copied' : 'Copy API token'}
+        </button>
+        <p className="mt-3 text-small text-faint">Anyone with the token can read and change your Afterparty data until it expires. Keep it private.</p>
       </Card>
 
       <Card title="Account">

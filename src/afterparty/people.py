@@ -144,7 +144,10 @@ def company_from_bio(bio: str | None) -> str:
     if not bio:
         return ""
     m = COMPANY_RE.search(bio)
-    return m.group(1).strip(" .,;") if m else ""
+    if not m:
+        return ""
+    # "CEO at Saltbox. Building robots." -> "Saltbox": a sentence ends the name.
+    return re.split(r"\.\s", m.group(1))[0].strip(" .,;")
 
 
 def _split_name(name: str) -> tuple[str, str]:

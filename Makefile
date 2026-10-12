@@ -22,8 +22,8 @@ test: db          ## API and parser tests
 	uv run pytest -q
 
 lint:
-	uv run ruff check src tests scripts
-	uv run ruff format --check src tests scripts
+	uv run ruff check src tests scripts skills
+	uv run ruff format --check src tests scripts skills
 	npm --prefix web run lint
 
 smoke:            ## every page in a headless browser (needs `make dev` running)

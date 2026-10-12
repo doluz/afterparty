@@ -28,8 +28,8 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: uv sync
-      - run: uv run ruff check src tests scripts
-      - run: uv run ruff format --check src tests scripts
+      - run: uv run ruff check src tests scripts skills
+      - run: uv run ruff format --check src tests scripts skills
       - run: npm ci --prefix web
       - run: npm --prefix web run lint
       - run: npm --prefix web run build

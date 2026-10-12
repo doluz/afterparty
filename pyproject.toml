@@ -1,6 +1,6 @@
 [project]
 name = "afterparty"
-version = "1.0.0"
+version = "1.1.0"
 description = "Self-hosted Partiful scraper: sync Partiful events and guest lists into PostgreSQL, then search, map and export people to CSV."
 authors = [{ name = "Sidhdharth Sivasubramanian" }]
 readme = "README.md"
@@ -59,7 +59,8 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "scripts/*" = ["S", "RUF", "E501"]
-"tests/*" = ["S101", "S105", "S106"]
+"skills/*" = ["S", "E501"]
+"tests/*" = ["S101", "S105", "S106", "S603"]
 # SQL lives in string literals; wrapping it hurts readability.
 "src/afterparty/app.py" = ["E501"]
 "src/afterparty/people.py" = ["E501"]

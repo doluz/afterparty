@@ -22,6 +22,7 @@
   <a href="docs/self-hosting.md">Self-hosting</a> ·
   <a href="docs/connector.md">Connector</a> ·
   <a href="docs/architecture.md">Architecture</a> ·
+  <a href="#use-with-ai-agents">AI agents</a> ·
   <a href="https://github.com/doluz/afterparty/releases/latest">Demo video</a> ·
   <a href="#author">Author</a>
 </p>
@@ -145,6 +146,69 @@ make smoke    # headless Chromium on every page (needs `make dev` running)
 In local mode the **Connect Partiful** step also shows **Use demo data**. It runs a first sync with made-up people, so you
 can work on the app without a Partiful account.
 
+## Use with AI agents
+
+Afterparty is ready for AI agents in two ways:
+
+- **Coding agents** (Claude Code, Codex, Cursor, Gemini CLI, Copilot) read [`AGENTS.md`](AGENTS.md) for the commands, the code map and the rules. [`llms.txt`](llms.txt) indexes the docs.
+- **Any agent that supports Agent Skills** can use the [`afterparty` skill](skills/afterparty/SKILL.md) to set up an instance, query and export your people, and change the code. The skill ships a zero-dependency API client, [`scripts/afterparty.py`](skills/afterparty/scripts/afterparty.py).
+
+### Install the skill
+
+```bash
+git clone --depth 1 https://github.com/doluz/afterparty.git /tmp/afterparty
+mkdir -p ~/.claude/skills && cp -r /tmp/afterparty/skills/afterparty ~/.claude/skills/
+```
+
+For other agents, copy `skills/afterparty` into that agent's skills folder, or tell the agent to read `skills/afterparty/SKILL.md`.
+
+### Give the agent access to your data
+
+In Afterparty, open **Settings > API access for agents** and select **Copy API token**. Then give the agent:
+
+```bash
+export AFTERPARTY_URL=http://localhost:8080      # your instance
+export AFTERPARTY_AUTH="Bearer eyJ..."           # the token you copied (Firebase tokens expire after one hour)
+# local mode only, in place of a token:
+export AFTERPARTY_EMAIL=you@example.com
+```
+
+The client works without an agent too:
+
+```bash
+python3 skills/afterparty/scripts/afterparty.py people --cluster founder --repeat --all
+python3 skills/afterparty/scripts/afterparty.py export investors.csv --cluster investor --social linkedin
+```
+
+The full schema is at `/openapi.json` on every instance.
+
+### Sample prompts
+
+**Set up**
+
+- "Set up Afterparty on my laptop with Docker, generate the encryption key, and tell me when it is ready for me to connect Partiful."
+- "Run Afterparty from source with demo data so I can try it without a Partiful account."
+- "Deploy Afterparty to Google Cloud Run with Cloud SQL and Cloud KMS. Ask me before you create anything that costs money."
+- "Put my Afterparty behind Caddy on my VPS at afterparty.example.com with Firebase sign-in, and only allow @mycompany.com emails."
+
+**Work with your data**
+
+- "Who are the founders I met at more than one event? Show name, company and LinkedIn, most frequent first."
+- "Export every investor I met with a LinkedIn link to investors.csv, ready to import into Clay."
+- "Find everyone whose bio mentions voice AI and list the events where I met them."
+- "Make a CSV of the Oktoberfest Block Party guest list, engineers only."
+- "Sync Partiful again and tell me who is new since last week."
+- "Mark Blake Quintero as contacted with the note 'coffee on Friday'."
+- "Draft a short, personal follow-up message for the five founders I met most often. Do not send anything."
+- "Which people have I marked to follow up but not contacted yet?"
+
+**Change the code**
+
+- "Add a Researcher designation for bios that mention 'research scientist' or 'PhD', and update the How it works page and the tests."
+- "Add a github_url column to the CSV export, with a test."
+- "Add custom tags on people: a migration, an API route, a filter, and tests."
+- "Read the sync code and tell me how many requests a sync of 50 events makes to Partiful."
+
 ## Configuration
 
 All settings are environment variables. [`.env.example`](.env.example) lists all of them.
@@ -172,6 +236,7 @@ and Cloud Scheduler. Steps, backups and upgrades: [docs/self-hosting.md](docs/se
 ## API
 
 The web app uses a small JSON API. All `/api/*` routes need a signed-in user, except `/api/health` and `/api/config`.
+Scripts and agents send the token from **Settings > API access for agents**. The schema is at `/openapi.json`.
 
 | Method and path | Function |
 |-----------------|----------|
@@ -198,6 +263,8 @@ extension/                  Afterparty Connector, Chrome Manifest V3
 scripts/                    Local PostgreSQL, demo data, connector packaging, UI smoke test
 tests/                      pytest: API end to end on PostgreSQL with a fake Partiful, parser and rules
 docs/                       Self-hosting, connector and architecture guides
+skills/afterparty/          Agent Skill: SKILL.md, API reference, development guide, API client
+AGENTS.md, llms.txt         Instructions and a docs index for AI agents
 ```
 
 ## Limits

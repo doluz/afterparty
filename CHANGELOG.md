@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0 - 2026-10-11
+
+- Agent Skill in `skills/afterparty/`: set up an instance, query and export people, change the code. Includes an
+  API reference, a development guide and `scripts/afterparty.py`, a zero-dependency API client.
+- `AGENTS.md` for coding agents and `llms.txt` as a docs index.
+- Settings > API access for agents: copy the API token for scripts and agents.
+- Fixed: `company_from_bio` stopped at the end of a sentence ("CEO at Saltbox. Building robots." gives "Saltbox").
+
 ## 1.0.0 - 2026-10-11
 
 First open-source release.

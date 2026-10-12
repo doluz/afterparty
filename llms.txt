@@ -1,0 +1,25 @@
+# Afterparty
+
+> Self-hosted Partiful scraper and guest list exporter. It syncs the events and guest lists of a Partiful account into PostgreSQL through Partiful's web API, then serves a web app and a JSON API to search, filter, map and export people to CSV. FastAPI, PostgreSQL, React and a Chrome (Manifest V3) extension. MIT license.
+
+Run it with Docker Compose (`docker compose up -d --build`, then http://localhost:8080). Agents can query a running instance with the client in `skills/afterparty/scripts/afterparty.py` and the token from Settings > API access for agents.
+
+## Docs
+
+- [README](https://raw.githubusercontent.com/doluz/afterparty/main/README.md): features, quick start, configuration, API summary, sample prompts for agents
+- [Self-hosting](https://raw.githubusercontent.com/doluz/afterparty/main/docs/self-hosting.md): Docker, from source, Firebase sign-in, servers, Cloud Run, daily sync, backups, all settings
+- [Connector](https://raw.githubusercontent.com/doluz/afterparty/main/docs/connector.md): what the Chrome extension does, its permissions, loading it, publishing it
+- [Architecture](https://raw.githubusercontent.com/doluz/afterparty/main/docs/architecture.md): components, how Partiful is read, data model, security
+
+## Agents
+
+- [Agent Skill](https://raw.githubusercontent.com/doluz/afterparty/main/skills/afterparty/SKILL.md): set up an instance, query and export people, change the code
+- [API reference](https://raw.githubusercontent.com/doluz/afterparty/main/skills/afterparty/references/api.md): routes, filters, response fields, CSV columns
+- [Development guide](https://raw.githubusercontent.com/doluz/afterparty/main/skills/afterparty/references/development.md): commands, code map, procedures for designations, CSV columns and API routes
+- [AGENTS.md](https://raw.githubusercontent.com/doluz/afterparty/main/AGENTS.md): rules for coding agents in this repository
+
+## Optional
+
+- [Contributing](https://raw.githubusercontent.com/doluz/afterparty/main/CONTRIBUTING.md)
+- [Changelog](https://raw.githubusercontent.com/doluz/afterparty/main/CHANGELOG.md)
+- [OpenAPI schema](/openapi.json): served by each running instance
