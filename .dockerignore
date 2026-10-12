@@ -1,0 +1,14 @@
+.git
+.github
+.venv
+.devdb
+.env
+**/__pycache__
+**/node_modules
+web/dist
+src/afterparty/static
+docs
+tests
+scripts
+*.md
+!README.md

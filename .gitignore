@@ -1,0 +1,27 @@
+# secrets
+.env
+*.pem
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# web
+web/node_modules/
+web/dist/
+src/afterparty/static/
+
+# local data
+.devdb/
+*.zip
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/

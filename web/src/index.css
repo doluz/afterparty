@@ -1,0 +1,263 @@
+@import 'tailwindcss';
+
+/* Afterparty: a blacklit room. Tyvek wristbands fluoresce under UV, so the
+   page is plum-black and colour comes only from the bands (one per event,
+   following that event everywhere) and the glow they throw. Type is set at
+   Partiful's scale: 36–44px headings, 17px body, tight tracking. */
+@theme static {
+  --color-night: #0f0b14;
+  --color-dusk: #17121d;
+  --color-dusk-2: #211a29;
+  --color-dusk-3: #2c2335;
+  --color-line: #2a2232;
+  --color-line-2: #3a3044;
+  --color-ink: #f6f1fa;
+  --color-mute: #aa9db6;
+  --color-faint: #857a8e;
+  --color-uv: #8b6cff;
+  --color-danger: #ff6b7a;
+  --color-ok: #3ddc84;
+
+  --color-band-orange: #ff7a1a;
+  --color-band-yellow: #f5d90a;
+  --color-band-green: #3ddc84;
+  --color-band-pink: #ff5fa2;
+  --color-band-blue: #3ba7ff;
+  --color-band-violet: #a77bff;
+  --color-band-red: #ff4d5e;
+  --color-band-teal: #2ed3c6;
+
+  --font-display: 'Funnel Display', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Funnel Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-band: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
+
+  /* Partiful-scale type */
+  --text-display: clamp(2.125rem, 1.6rem + 2.2vw, 2.75rem);
+  --text-display--line-height: 1.04;
+  --text-display--letter-spacing: -0.035em;
+  --text-title: clamp(1.875rem, 1.6rem + 1.1vw, 2.25rem);
+  --text-title--line-height: 1.08;
+  --text-title--letter-spacing: -0.03em;
+  --text-section: 1.5rem;
+  --text-section--line-height: 1.15;
+  --text-section--letter-spacing: -0.02em;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.5;
+  --text-small: 0.9375rem;
+  --text-small--line-height: 1.45;
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.35;
+
+  --radius-card: 1.25rem;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background: var(--color-night);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 100%;
+    letter-spacing: -0.006em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    min-height: 100dvh;
+    font-size: var(--text-body);
+    line-height: 1.5;
+    background:
+      radial-gradient(60rem 36rem at 12% -12%, rgb(139 108 255 / 0.16), transparent 70%),
+      radial-gradient(48rem 30rem at 92% -8%, rgb(255 95 162 / 0.1), transparent 70%),
+      radial-gradient(50rem 40rem at 50% 120%, rgb(46 211 198 / 0.06), transparent 70%),
+      var(--color-night);
+    background-attachment: fixed;
+  }
+  /* film grain, so the dark reads as a room and not a void */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  #root {
+    position: relative;
+    z-index: 1;
+  }
+  ::selection {
+    background: var(--color-uv);
+    color: #fff;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-uv);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+  }
+}
+
+@layer components {
+  .tyvek {
+    background-image:
+      repeating-linear-gradient(115deg, rgb(255 255 255 / 0.08) 0 1px, transparent 1px 7px),
+      repeating-linear-gradient(25deg, rgb(0 0 0 / 0.06) 0 1px, transparent 1px 9px);
+  }
+  .glass {
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.045), rgb(255 255 255 / 0.02));
+    border: 1px solid rgb(255 255 255 / 0.07);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05);
+    border-radius: var(--radius-card);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 2.75rem;
+    padding: 0 1.25rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    letter-spacing: -0.01em;
+    transition: background-color 140ms, border-color 140ms, color 140ms, box-shadow 140ms, transform 140ms;
+    white-space: nowrap;
+  }
+  .btn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  /* Primary: a white pill under UV — it glows faintly violet. */
+  .btn-primary {
+    background: var(--color-ink);
+    color: var(--color-night);
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.4), 0 8px 30px -8px rgb(139 108 255 / 0.65);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: #fff;
+    box-shadow: 0 0 0 1px #fff, 0 10px 40px -6px rgb(139 108 255 / 0.85);
+  }
+  .btn-quiet {
+    background: rgb(255 255 255 / 0.05);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    color: var(--color-ink);
+  }
+  .btn-quiet:hover:not(:disabled) {
+    background: rgb(255 255 255 / 0.09);
+    border-color: rgb(255 255 255 / 0.18);
+  }
+  .btn-danger {
+    border: 1px solid color-mix(in oklab, var(--color-danger) 45%, transparent);
+    color: var(--color-danger);
+  }
+  .btn-danger:hover:not(:disabled) {
+    background: color-mix(in oklab, var(--color-danger) 12%, transparent);
+  }
+  .field {
+    height: 2.875rem;
+    width: 100%;
+    padding: 0 1rem;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.05);
+    border: 1px solid rgb(255 255 255 / 0.09);
+    color: var(--color-ink);
+    font-size: 1rem;
+    transition: border-color 140ms, background-color 140ms;
+  }
+  textarea.field {
+    border-radius: 1rem;
+    padding: 0.75rem 1rem;
+  }
+  .field::placeholder {
+    color: var(--color-faint);
+  }
+  .field:focus {
+    outline: none;
+    border-color: rgb(139 108 255 / 0.8);
+    background: rgb(255 255 255 / 0.07);
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    height: 2.25rem;
+    padding: 0 0.9rem;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.04);
+    border: 1px solid rgb(255 255 255 / 0.08);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-mute);
+    white-space: nowrap;
+    transition: border-color 140ms, color 140ms, background-color 140ms;
+  }
+  .chip:hover {
+    color: var(--color-ink);
+    border-color: rgb(255 255 255 / 0.18);
+  }
+  .chip[aria-pressed='true'] {
+    color: var(--color-night);
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+  .scroll-row {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-bottom: 0.25rem;
+  }
+  .scroll-row::-webkit-scrollbar {
+    display: none;
+  }
+  .scroll-row > * {
+    scroll-snap-align: start;
+    flex: none;
+  }
+}
+
+@keyframes band-drop {
+  from {
+    transform: translateY(-16px) rotate(-2deg);
+    opacity: 0;
+    filter: blur(2px);
+  }
+  to {
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+}
+.band-drop {
+  animation: band-drop 520ms cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+}
+@keyframes rise {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.rise {
+  animation: rise 360ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .band-drop,
+  .rise {
+    animation: none;
+  }
+}

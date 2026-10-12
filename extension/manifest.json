@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Afterparty Connector",
+  "version": "1.1.0",
+  "description": "Connects your Partiful account to Afterparty. Reads your Partiful sign-in only when Afterparty asks.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxFGO+YX+ILJ8kaaZ85hKT56gydfsl1fWEkkvZSGcElI44Oi8STmMXkO9gEie5kpFpA6aX6ejnAByFojg6Blnx0kLofSbAokBYbT6mNQ+ynfo7/DrqDPaYtpWQFYSnGhwCQTkUbewZYjWlyKNwRHvLDLXvT8i5SgOLe3bggGK0b5xzlyi2oZDFMOFPfhgCGt0QI5/JyV7yv39EqSSZKYBhAIkbZYavOCS0Jf52gBY/9G73434FqF3cFd1Eg5XBdb2KvDfuts4xn9GeSDRsSy1YgWyz5T8NfHp4DJ/2naYqbJdivF0DH8qmr0xeYKEodUmLUuAUAUVSdx2xRj+I3D67wIDAQAB",
+  "permissions": [
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://partiful.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "externally_connectable": {
+    "matches": [
+      "http://localhost/*",
+      "http://127.0.0.1/*"
+    ]
+  },
+  "action": {
+    "default_title": "Afterparty Connector",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "icons/16.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  }
+}

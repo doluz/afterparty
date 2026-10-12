@@ -1,0 +1,38 @@
+# Afterparty on one machine: the app and its Postgres.
+#
+#   cp .env.example .env    # then set ENCRYPTION_KEY (see the file)
+#   docker compose up -d    # http://localhost:8080
+#
+# The port is published on 127.0.0.1 only. Local mode (APP_ENV=dev) signs in with
+# no password, so do not expose it. To share an instance, set up Firebase sign-in
+# first: see docs/self-hosting.md.
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: afterparty
+      POSTGRES_PASSWORD: afterparty
+      POSTGRES_DB: afterparty
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U afterparty"]
+      interval: 2s
+      retries: 30
+
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://afterparty:afterparty@db:5432/afterparty
+    ports:
+      - "127.0.0.1:${PORT:-8080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

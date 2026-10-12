@@ -1,0 +1,19 @@
+name: Feature request
+description: An idea that makes follow-up easier.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What do you try to do, and what makes it hard today?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you do today instead

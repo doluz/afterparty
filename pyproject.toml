@@ -1,0 +1,72 @@
+[project]
+name = "afterparty"
+version = "1.0.0"
+description = "Turn the guest lists of the Partiful events you went to into one list of people to follow up with."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+keywords = ["partiful", "networking", "events", "crm", "follow-up", "self-hosted"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: FastAPI",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Office/Business",
+]
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "httpx>=0.27",
+    "psycopg[binary,pool]>=3.2",
+    "google-auth>=2.30",
+    "requests>=2.32",
+    "cryptography>=43",
+]
+
+[project.optional-dependencies]
+# Encrypt tokens with a Google Cloud KMS key instead of ENCRYPTION_KEY.
+gcp = ["google-cloud-kms>=3.0"]
+
+[project.urls]
+Homepage = "https://github.com/doluz/afterparty"
+Issues = "https://github.com/doluz/afterparty/issues"
+"Hosted version" = "https://afterparty-network.web.app"
+
+[project.scripts]
+afterparty-dev = "afterparty.dev:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/afterparty"]
+
+[dependency-groups]
+dev = ["pytest>=8.0", "ruff>=0.6", "playwright>=1.49"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "BLE", "S", "RUF"]
+ignore = [
+    "BLE001",  # Partiful payloads vary: a missing field degrades to None, it never aborts a sync
+    "S110",
+    "S112",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/*" = ["S", "RUF", "E501"]
+"tests/*" = ["S101", "S105", "S106"]
+# SQL lives in string literals; wrapping it hurts readability.
+"src/afterparty/app.py" = ["E501"]
+"src/afterparty/people.py" = ["E501"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency-injection idiom.
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
