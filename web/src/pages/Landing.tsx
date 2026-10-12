@@ -12,9 +12,9 @@ const DEMO: { id: string; title: string; at: string; stub: string; color: BandCo
 ]
 
 const STEPS = [
-  { title: 'Ask for access', body: 'Sign in with Google or your email. Every account is approved by hand.' },
-  { title: 'Connect Partiful', body: 'Add the Afterparty Connector to Chrome and select Connect. You stay signed in to Partiful as you are now.' },
-  { title: 'Follow up', body: 'Everyone from the events you went to, with bios and socials, and who you keep running into.' },
+  { title: 'Sign in', body: 'Local mode needs only an email. A shared instance uses Firebase sign-in (Google or email link). Each user sees only their own data.' },
+  { title: 'Connect Partiful', body: 'The Afterparty Connector (Chrome extension) hands your Partiful session to the server once. The server encrypts the refresh token.' },
+  { title: 'Sync and export', body: 'The server reads every event and guest list through the Partiful API, then syncs daily. Filter, select and export people to CSV.' },
 ]
 
 export function Landing() {
@@ -33,17 +33,18 @@ export function Landing() {
         <section className="grid items-center gap-14 pb-20 pt-10 lg:grid-cols-[1.05fr_1fr] lg:pt-20">
           <div className="rise">
             <h1 className="text-[clamp(2.5rem,5.4vw,4rem)] leading-[1.02] tracking-[-0.04em]">
-              Remember who was in the room.
+              Sync your Partiful guest lists. Export them to CSV.
             </h1>
             <p className="mt-6 max-w-lg text-[1.1875rem] leading-relaxed text-mute">
-              Afterparty reads the guest lists of the Partiful events you went to and turns them into one list of
-              people to follow up with: their bios, their LinkedIn, X and Instagram, and who you keep running into.
+              Afterparty is a self-hosted Partiful scraper. It reads the events and guest lists from your Partiful
+              account, stores them in Postgres, and gives you search, filters, a people map and CSV export, with
+              bios and LinkedIn, X and Instagram links.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-4">
               <Link to="/signin" className="btn btn-primary h-12 px-7 text-body">
-                Request access
+                Sign in
               </Link>
-              <span className="text-small text-faint">Invite-only. Free while in beta.</span>
+              <span className="text-small text-faint">Open source · MIT · Self-hosted</span>
             </div>
           </div>
 
@@ -82,7 +83,7 @@ export function Landing() {
             Afterparty only shows guest lists that Partiful already shows you. It never posts, RSVPs or messages anyone
             for you. Afterparty is not made by or affiliated with Partiful.{' '}
             <Link to="/how-it-works" className="font-semibold text-mute hover:text-ink">
-              How it reads people
+              How it works
             </Link>
             {' · '}
             <Link to="/privacy" className="font-semibold text-mute hover:text-ink">

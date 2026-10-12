@@ -5,13 +5,13 @@ const SECTIONS: { title: string; body: string[] }[] = [
   {
     title: 'What Afterparty is',
     body: [
-      'Afterparty is an invite-only tool that shows you the people at the Partiful events you went to, so you can follow up with them. It is not made by or affiliated with Partiful.',
+      'Afterparty is a tool that shows you the people at the Partiful events you went to, so you can follow up with them. It is not made by or affiliated with Partiful.',
     ],
   },
   {
     title: 'What we keep about you',
     body: [
-      'Your email address and name from Google or the email link you signed in with, and whether your access is approved.',
+      'Your email address and name from Google or the email link you signed in with.',
       'Your Partiful user id, your Partiful display name, and an encrypted Partiful sign-in token. The token lets Afterparty read your events once a day. It is encrypted at rest with a key that only the Afterparty server can use, and it is never sent back to your browser.',
       'Your follow-up status and notes on people.',
     ],

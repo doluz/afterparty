@@ -424,12 +424,12 @@ def abandon_live_runs() -> None:
 
 
 def sync_all(trigger: str = "schedule") -> int:
-    """Daily: sync every approved, connected user not synced in the last DAILY_GAP,
+    """Daily: sync every connected user not synced in the last DAILY_GAP,
     one after another. Accounts with an expired session are retried too: the
     refresh fails fast if it is really dead, and recovers if it was transient."""
     users = db.all_(
         "SELECT u.id FROM users u JOIN partiful_accounts a ON a.user_id = u.id"
-        " WHERE u.status = 'approved' AND (a.last_sync_at IS NULL OR a.last_sync_at < %s)"
+        " WHERE a.last_sync_at IS NULL OR a.last_sync_at < %s"
         " ORDER BY a.last_sync_at NULLS FIRST",
         (_now() - DAILY_GAP,),
     )

@@ -15,10 +15,9 @@ os.environ.update(
     {
         "APP_ENV": "dev",
         "DATABASE_URL": os.environ.get(
-            "TEST_DATABASE_URL", "postgresql://postgres@127.0.0.1:54329/afterparty_test"
+            "TEST_DATABASE_URL", "postgresql://postgres@127.0.0.1:54331/afterparty_test"
         ),
         "ENCRYPTION_KEY": Fernet.generate_key().decode(),
-        "ADMIN_EMAILS": "admin@example.com",
         "FIREBASE_PROJECT_ID": "afterparty-test",
         "PARTIFUL_DELAY": "0",
     }

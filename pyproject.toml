@@ -1,12 +1,13 @@
 [project]
 name = "afterparty"
 version = "1.0.0"
-description = "Turn the guest lists of the Partiful events you went to into one list of people to follow up with."
+description = "Self-hosted Partiful scraper: sync Partiful events and guest lists into PostgreSQL, then search, map and export people to CSV."
+authors = [{ name = "Sidhdharth Sivasubramanian" }]
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.11"
-keywords = ["partiful", "networking", "events", "crm", "follow-up", "self-hosted"]
+keywords = ["partiful", "partiful-scraper", "guest-list", "csv-export", "events", "networking", "self-hosted"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Framework :: FastAPI",
@@ -31,7 +32,6 @@ gcp = ["google-cloud-kms>=3.0"]
 [project.urls]
 Homepage = "https://github.com/doluz/afterparty"
 Issues = "https://github.com/doluz/afterparty/issues"
-"Hosted version" = "https://afterparty-network.web.app"
 
 [project.scripts]
 afterparty-dev = "afterparty.dev:main"

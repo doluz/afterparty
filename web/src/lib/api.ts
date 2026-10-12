@@ -59,8 +59,6 @@ export type Me = {
     email: string
     name: string | null
     photo_url: string | null
-    status: 'pending' | 'approved' | 'denied'
-    role: 'user' | 'admin'
     onboarded_at: string | null
   }
   partiful: {
@@ -123,21 +121,6 @@ export type Stats = {
   clusters: Record<string, number>
 }
 
-export type AdminUser = {
-  id: number
-  email: string
-  name: string | null
-  photo_url: string | null
-  status: 'pending' | 'approved' | 'denied'
-  role: string
-  created_at: string
-  approved_at: string | null
-  last_seen_at: string
-  partiful_name: string | null
-  last_sync_at: string | null
-  token_error: string | null
-  events: number
-}
 
 export type PeopleFilters = {
   q: string

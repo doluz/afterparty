@@ -12,14 +12,8 @@ CONNECT = {
 }
 
 
-def approve(client, email):
-    client.get("/api/me", headers=as_(email))
-    users = client.get("/api/admin/users", headers=as_("admin@example.com")).json()
-    uid = next(u["id"] for u in users if u["email"] == email)
-    r = client.post(
-        f"/api/admin/users/{uid}", json={"status": "approved"}, headers=as_("admin@example.com")
-    )
-    assert r.status_code == 200
+def sign_in(client, email):
+    assert client.get("/api/me", headers=as_(email)).status_code == 200
 
 
 def test_signin_required(client):
@@ -27,21 +21,18 @@ def test_signin_required(client):
     assert client.get("/api/me", headers={"Authorization": "Bearer nope"}).status_code == 401
 
 
-def test_new_user_waits_for_approval(client):
+def test_new_user_can_use_the_app_at_once(client):
     me = client.get("/api/me", headers=as_("guest@example.com")).json()
-    assert me["user"]["status"] == "pending"
-    assert client.get("/api/events", headers=as_("guest@example.com")).status_code == 403
-    assert client.get("/api/admin/users", headers=as_("guest@example.com")).status_code == 403
+    assert me["user"]["email"] == "guest@example.com"
+    assert client.get("/api/events", headers=as_("guest@example.com")).json() == []
 
 
-def test_admin_email_is_auto_approved(client):
-    me = client.get("/api/me", headers=as_("admin@example.com")).json()
-    assert me["user"]["status"] == "approved"
-    assert me["user"]["role"] == "admin"
+def test_there_is_no_admin_api(client):
+    assert client.get("/api/admin/users", headers=as_("guest@example.com")).status_code == 404
 
 
 def test_connect_sync_and_browse(client):
-    approve(client, "sid@example.com")
+    sign_in(client, "sid@example.com")
     h = as_("sid@example.com")
     r = client.post("/api/partiful/connect", json=CONNECT, headers=h)
     assert r.status_code == 200, r.text
@@ -91,7 +82,7 @@ def test_connect_sync_and_browse(client):
 
 
 def test_one_broken_event_does_not_sink_the_sync(client):
-    approve(client, "partial@example.com")
+    sign_in(client, "partial@example.com")
     h = as_("partial@example.com")
     FakePartiful.broken = {"ev-host"}
     client.post("/api/partiful/connect", json=CONNECT, headers=h)
@@ -103,8 +94,8 @@ def test_one_broken_event_does_not_sink_the_sync(client):
 
 
 def test_users_cannot_see_each_other(client):
-    approve(client, "a@example.com")
-    approve(client, "b@example.com")
+    sign_in(client, "a@example.com")
+    sign_in(client, "b@example.com")
     client.post("/api/partiful/connect", json=CONNECT, headers=as_("a@example.com"))
     assert client.get("/api/events", headers=as_("b@example.com")).json() == []
     assert client.get("/api/events/ev-past", headers=as_("b@example.com")).status_code == 404
@@ -117,16 +108,16 @@ def test_users_cannot_see_each_other(client):
 
 
 def test_delete_me_removes_everything(client):
-    approve(client, "gone@example.com")
+    sign_in(client, "gone@example.com")
     h = as_("gone@example.com")
     client.post("/api/partiful/connect", json=CONNECT, headers=h)
     assert client.delete("/api/me", headers=h).status_code == 200
-    me = client.get("/api/me", headers=h).json()  # signs in again as a fresh, pending user
-    assert me["user"]["status"] == "pending" and me["partiful"] is None
+    me = client.get("/api/me", headers=h).json()  # signs in again as a fresh user
+    assert me["partiful"] is None and me["user"]["onboarded_at"] is None
 
 
 def test_connect_rejects_bad_key(client):
-    approve(client, "k@example.com")
+    sign_in(client, "k@example.com")
     bad = {**CONNECT, "apiKey": "not-a-key"}
     assert (
         client.post("/api/partiful/connect", json=bad, headers=as_("k@example.com")).status_code
@@ -139,7 +130,7 @@ def test_scheduler_endpoint_needs_oidc(client):
 
 
 def test_future_hosted_event_is_not_people_met(client):
-    approve(client, "host@example.com")
+    sign_in(client, "host@example.com")
     h = as_("host@example.com")
     client.post("/api/partiful/connect", json=CONNECT, headers=h)
     stats = client.get("/api/stats", headers=h).json()
@@ -154,7 +145,7 @@ def test_future_hosted_event_is_not_people_met(client):
 def test_switching_partiful_accounts_starts_fresh(client):
     from afterparty import db
 
-    approve(client, "switch@example.com")
+    sign_in(client, "switch@example.com")
     h = as_("switch@example.com")
     client.post("/api/partiful/connect", json=CONNECT, headers=h)
     uid = client.get("/api/me", headers=h).json()["user"]["id"]
@@ -170,7 +161,7 @@ def test_switching_partiful_accounts_starts_fresh(client):
 
 
 def test_note_without_a_status_is_kept(client):
-    approve(client, "notes@example.com")
+    sign_in(client, "notes@example.com")
     h = as_("notes@example.com")
     client.post("/api/partiful/connect", json=CONNECT, headers=h)
     r = client.put(
@@ -192,7 +183,7 @@ def test_one_running_sync_per_user(client):
 
     from afterparty import db
 
-    approve(client, "once@example.com")
+    sign_in(client, "once@example.com")
     uid = client.get("/api/me", headers=as_("once@example.com")).json()["user"]["id"]
     db.run("INSERT INTO sync_runs (user_id, trigger) VALUES (%s, 'manual')", (uid,))
     with _pytest.raises(psycopg.errors.UniqueViolation):
@@ -201,7 +192,7 @@ def test_one_running_sync_per_user(client):
 
 def test_dev_header_refused_on_cloud_run(client, monkeypatch):
     monkeypatch.setenv("K_SERVICE", "afterparty")
-    assert client.get("/api/me", headers=as_("admin@example.com")).status_code == 401
+    assert client.get("/api/me", headers=as_("someone@example.com")).status_code == 401
 
 
 def test_security_headers_and_asset_404(client):
@@ -209,17 +200,6 @@ def test_security_headers_and_asset_404(client):
     assert r.headers["x-content-type-options"] == "nosniff"
     assert "frame-ancestors 'none'" in r.headers["content-security-policy"]
     assert client.get("/assets/index-gone.js").status_code == 404
-
-
-def test_new_access_request_pings_admin_once(client, monkeypatch):
-    from afterparty import notify
-
-    pings = []
-    monkeypatch.setattr(notify, "access_requested", lambda email, name: pings.append(email))
-    client.get("/api/me", headers=as_("newcomer@example.com"))
-    client.get("/api/me", headers=as_("newcomer@example.com"))
-    client.get("/api/me", headers=as_("admin@example.com"))  # admins are approved, no ping
-    assert pings == ["newcomer@example.com"]
 
 
 def test_public_brand_files_are_served(client):
@@ -241,7 +221,7 @@ def _csv_rows(text):
 
 
 def test_export_everyone_filtered_and_selected(client):
-    approve(client, "export@example.com")
+    sign_in(client, "export@example.com")
     h = as_("export@example.com")
     client.post("/api/partiful/connect", json=CONNECT, headers=h)
 
@@ -293,8 +273,8 @@ def test_export_defuses_spreadsheet_formulas():
 
 
 def test_export_and_map_are_per_user(client):
-    approve(client, "owner@example.com")
-    approve(client, "other@example.com")
+    sign_in(client, "owner@example.com")
+    sign_in(client, "other@example.com")
     client.post("/api/partiful/connect", json=CONNECT, headers=as_("owner@example.com"))
     other = as_("other@example.com")
     assert (
@@ -306,7 +286,7 @@ def test_export_and_map_are_per_user(client):
 
 
 def test_map_and_person_detail(client):
-    approve(client, "mapper@example.com")
+    sign_in(client, "mapper@example.com")
     h = as_("mapper@example.com")
     client.post("/api/partiful/connect", json=CONNECT, headers=h)
     m = client.get("/api/people/map", headers=h).json()

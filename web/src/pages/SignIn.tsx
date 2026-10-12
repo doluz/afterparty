@@ -85,7 +85,7 @@ export function SignIn() {
   return (
     <Frame>
       <h1 className="text-title">Sign in</h1>
-      <p className="mt-2 text-mute">New here? Signing in asks for access. You can use Afterparty once your request is approved.</p>
+      <p className="mt-2 text-mute">New here? Signing in creates your account.</p>
 
       {auth.config.env !== 'dev' && (
         <button type="button" onClick={google} disabled={!!busy} className="btn btn-quiet mt-7 h-12 w-full text-body">

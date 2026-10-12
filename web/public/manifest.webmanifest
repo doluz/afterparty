@@ -1,7 +1,7 @@
 {
   "name": "Afterparty",
   "short_name": "Afterparty",
-  "description": "Everyone from the Partiful events you went to, in one list to follow up with.",
+  "description": "Self-hosted Partiful scraper: sync guest lists, search people, export to CSV.",
   "start_url": "/home",
   "display": "standalone",
   "background_color": "#0f0b14",

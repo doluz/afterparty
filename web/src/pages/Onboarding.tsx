@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { Check, Copy, Download, ExternalLink, Sparkles } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
-import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ErrorNote, Spinner, Wordmark } from '../components/bits'
 import { Wristband } from '../components/Wristband'
 import { api, useEvents, useMe, useStats, useSync, type SyncRun } from '../lib/api'
@@ -27,7 +27,6 @@ export function Onboarding() {
     window.scrollTo({ top: 0 })
   }, [step])
 
-  if (me.data?.user.status !== 'approved') return me.data ? <Navigate to="/waitlist" replace /> : null
   if (step === null) return null
 
   return (

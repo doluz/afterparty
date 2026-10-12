@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import os
 
-os.environ.setdefault("DATABASE_URL", "postgresql://postgres@127.0.0.1:54329/afterparty")
+os.environ.setdefault("DATABASE_URL", "postgresql://postgres@127.0.0.1:54331/afterparty")
 # Settings are read at import: the dev key must be in place first.
 with open(".devdb/fernet.key") as f:
     os.environ.setdefault("ENCRYPTION_KEY", f.read().strip())
@@ -21,9 +21,8 @@ def main() -> None:
     db.migrate()
     db.run("DELETE FROM users WHERE email = 'demo@example.com'")
     uid = db.one(
-        "INSERT INTO users (firebase_uid, email, name, status, role, onboarded_at, approved_at)"
-        " VALUES ('dev:demo@example.com', 'demo@example.com', 'Demo Person', 'approved', 'user',"
-        " now(), now()) RETURNING id"
+        "INSERT INTO users (firebase_uid, email, name, onboarded_at)"
+        " VALUES ('dev:demo@example.com', 'demo@example.com', 'Demo Person', now()) RETURNING id"
     )["id"]
     db.run(
         "INSERT INTO partiful_accounts (user_id, partiful_uid, display_name, refresh_token_enc, api_key)"

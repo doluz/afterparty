@@ -6,7 +6,7 @@ setup:            ## install Python and web dependencies
 	uv sync
 	npm --prefix web ci --no-audit --no-fund
 
-db:               ## start the local Postgres (Docker, port 54329)
+db:               ## start the local Postgres (Docker, port 54331)
 	scripts/devdb.sh start
 
 web:              ## build the web app into src/afterparty/static

@@ -4,11 +4,13 @@
 
 First open-source release.
 
-- Connect Partiful through the Afterparty Connector, then sync every event and guest list you can see.
-- People list with bios, socials, times met, follow-up status and notes.
-- Designations from bios (Founder, Investor, Engineer, Product, Design, GTM and growth), explained on `/how-it-works`.
-- People Map grouped by designation.
-- CSV export of any filter, a selection, or one event's guest list.
-- Local mode for a personal instance, Firebase sign-in for a shared one, with admin approval or auto-approve.
-- Docker image and `docker-compose.yml`. Daily sync in the server process or through `/internal/sync-all` with a shared secret.
-- Each instance serves a connector zip for its own address.
+- Partiful sync through Partiful's web API: home-page events, guest lists (`getGuests`, paginated), host guest lists
+  (Firestore and `getUsers`). Daily resync, one running sync per user.
+- People list with bios, socials, times met, follow-up status and notes. Text search and filters.
+- Designations from bios with keyword rules (`src/afterparty/core/roles.py`), documented on `/how-it-works`.
+- People map grouped by designation (d3-hierarchy).
+- CSV export of any filter, a selection, or one event's guest list, with a formula-injection guard.
+- Local mode (email only) and Firebase sign-in, with an optional `ALLOWED_EMAILS` allowlist.
+- Partiful refresh tokens encrypted with `ENCRYPTION_KEY` (Fernet) or Google Cloud KMS.
+- Afterparty Connector (Chrome, Manifest V3). Each instance serves a connector zip for its own origin.
+- Docker image, `docker-compose.yml`, CI, and self-hosting, connector and architecture guides.

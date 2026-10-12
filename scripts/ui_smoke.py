@@ -1,7 +1,7 @@
 """Headless UI smoke test on synthetic data: every page, both widths, the full
 onboarding with the dev demo connector. Fails on any console error or uncaught
-exception. Needs the local API on :8080 in local mode (`uv run afterparty-dev`,
-which approves every sign-in). Never touches real data.
+exception. Needs the local API on :8080 in local mode (`uv run afterparty-dev`).
+Never touches real data.
 
     uv run python scripts/ui_smoke.py
 """
@@ -25,8 +25,7 @@ def main() -> int:
     api = httpx.Client(base_url=BASE, timeout=30)
     me = {"Authorization": f"Dev {EMAIL}"}
     api.delete("/api/me", headers=me)
-    if api.get("/api/me", headers=me).json()["user"]["status"] != "approved":
-        sys.exit("Start the API with AUTO_APPROVE=true (afterparty-dev does) for this test.")
+    api.get("/api/me", headers=me).raise_for_status()
 
     errors: list[str] = []
 
@@ -46,7 +45,9 @@ def main() -> int:
             watch(page, label)
             page.goto(f"{BASE}/")
             expect(
-                page.get_by_role("heading", name="Remember who was in the room.")
+                page.get_by_role(
+                    "heading", name="Sync your Partiful guest lists. Export them to CSV."
+                )
             ).to_be_visible()
             page.goto(f"{BASE}/privacy")
             expect(page.get_by_role("heading", name="Privacy")).to_be_visible()

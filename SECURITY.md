@@ -15,7 +15,7 @@ We will reply in 7 days.
 - Access to the data of a different user.
 - Ways to read or decrypt a stored Partiful token.
 - Ways to make the connector give a Partiful sign-in to a page that is not the instance.
-- Sign-in bypass in Firebase mode.
+- Sign-in bypass in Firebase mode, or a bypass of `ALLOWED_EMAILS`.
 
 ## Out of scope
 

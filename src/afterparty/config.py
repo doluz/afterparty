@@ -25,10 +25,9 @@ class Settings:
     firebase_web_config: str = field(
         default_factory=lambda: os.environ.get("FIREBASE_WEB_CONFIG", "{}")
     )
-    admin_emails: list[str] = field(default_factory=lambda: _csv("ADMIN_EMAILS"))
-    #: Approve every new sign-in. Right for a personal instance; leave it off for a
-    #: shared one, where an admin approves each request on the Access page.
-    auto_approve: bool = field(default_factory=lambda: _flag("AUTO_APPROVE"))
+    #: Who may sign in: emails and/or "@domain" entries, comma-separated. Empty means
+    #: anyone who can sign in. Each user only ever sees their own data.
+    allowed_emails: list[str] = field(default_factory=lambda: _csv("ALLOWED_EMAILS"))
     #: Fernet key that encrypts Partiful tokens at rest. Generate one with
     #: `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`.
     encryption_key: str = field(default_factory=lambda: os.environ.get("ENCRYPTION_KEY", ""))

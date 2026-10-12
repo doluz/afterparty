@@ -1,4 +1,4 @@
-import { CalendarDays, Home, Settings, ShieldCheck, Users } from 'lucide-react'
+import { CalendarDays, Home, Settings, Users } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { useEvents, useMe } from '../lib/api'
@@ -14,8 +14,7 @@ const NAV = [
 export function Shell() {
   const me = useMe()
   const events = useEvents()
-  const admin = me.data?.user.role === 'admin'
-  const items = admin ? [...NAV, { to: '/admin', label: 'Access', icon: ShieldCheck }] : NAV
+  const items = NAV
   const name = me.data?.user.name || me.data?.user.email || ''
 
   return (

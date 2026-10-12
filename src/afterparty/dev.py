@@ -29,9 +29,8 @@ def main() -> None:
 
     _load_dotenv()
     os.environ.setdefault("APP_ENV", "dev")
-    os.environ.setdefault("DATABASE_URL", "postgresql://postgres@127.0.0.1:54329/afterparty")
+    os.environ.setdefault("DATABASE_URL", "postgresql://postgres@127.0.0.1:54331/afterparty")
     os.environ.setdefault("FIREBASE_PROJECT_ID", "afterparty-local")
-    os.environ.setdefault("AUTO_APPROVE", "true")
     keyfile = os.path.join(".devdb", "fernet.key")
     if not os.environ.get("ENCRYPTION_KEY"):
         os.makedirs(".devdb", exist_ok=True)

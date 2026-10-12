@@ -68,7 +68,7 @@ The page `/how-it-works` in the web app shows the same rules.
 
 | Table | Contents |
 |-------|----------|
-| `users` | Afterparty accounts, their approval status and their role. |
+| `users` | Afterparty accounts: the email, the name and the setup state. |
 | `partiful_accounts` | One Partiful connection for each user, with the encrypted refresh token. |
 | `events` | The Partiful events of each user. |
 | `guests` | The guest list of each event, for each user. |

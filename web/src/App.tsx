@@ -3,7 +3,6 @@ import { ErrorNote, PageLoading } from './components/bits'
 import { Shell } from './components/Shell'
 import { ApiError, useMe } from './lib/api'
 import { useAuth } from './lib/auth'
-import { Admin } from './pages/Admin'
 import { EventDetail, Events } from './pages/Events'
 import { Home } from './pages/Home'
 import { HowItWorks } from './pages/HowItWorks'
@@ -13,10 +12,9 @@ import { People } from './pages/People'
 import { Privacy } from './pages/Privacy'
 import { Settings } from './pages/Settings'
 import { FinishSignIn, SignIn } from './pages/SignIn'
-import { Waitlist } from './pages/Waitlist'
 
-/** Signed in, approved, and connected: anything else goes to the step it's missing. */
-function Gate({ need }: { need: 'signedIn' | 'app' | 'admin' }) {
+/** Signed in and connected: anything else goes to the step it's missing. */
+function Gate({ need }: { need: 'signedIn' | 'app' }) {
   const { state, signOut } = useAuth()
   const loc = useLocation()
   const me = useMe(state.status === 'signedIn')
@@ -37,9 +35,7 @@ function Gate({ need }: { need: 'signedIn' | 'app' | 'admin' }) {
   }
   if (need === 'signedIn') return <Outlet />
   const u = me.data!.user
-  if (u.status !== 'approved') return <Navigate to="/waitlist" replace />
   if (!me.data!.partiful && !u.onboarded_at) return <Navigate to="/onboarding" replace />
-  if (need === 'admin' && u.role !== 'admin') return <Navigate to="/home" replace />
   return <Outlet />
 }
 
@@ -52,7 +48,6 @@ export default function App() {
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/how-it-works" element={<HowItWorks />} />
       <Route element={<Gate need="signedIn" />}>
-        <Route path="/waitlist" element={<Waitlist />} />
         <Route path="/onboarding" element={<Onboarding />} />
       </Route>
       <Route element={<Gate need="app" />}>
@@ -62,9 +57,6 @@ export default function App() {
           <Route path="/events" element={<Events />} />
           <Route path="/events/:id" element={<EventDetail />} />
           <Route path="/settings" element={<Settings />} />
-          <Route element={<Gate need="admin" />}>
-            <Route path="/admin" element={<Admin />} />
-          </Route>
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

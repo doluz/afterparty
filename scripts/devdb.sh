@@ -2,8 +2,8 @@
 # Local Postgres 16 for Afterparty development, in Docker.
 #   scripts/devdb.sh start | stop | reset
 set -euo pipefail
-NAME=afterparty-pg
-PORT=54329
+NAME=afterparty-postgres
+PORT=54331
 PSQL=(docker exec -i "$NAME" psql -U postgres -v ON_ERROR_STOP=1 -qtA)
 
 wait_ready() {
@@ -26,7 +26,7 @@ case "${1:-start}" in
   start)
     if ! docker ps -a --format '{{.Names}}' | grep -qx "$NAME"; then
       docker run -d --name "$NAME" -p "127.0.0.1:$PORT:5432" \
-        -e POSTGRES_HOST_AUTH_METHOD=trust -v afterparty-pg:/var/lib/postgresql/data \
+        -e POSTGRES_HOST_AUTH_METHOD=trust -v afterparty-postgres:/var/lib/postgresql/data \
         postgres:16-alpine >/dev/null
     else
       docker start "$NAME" >/dev/null

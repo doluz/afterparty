@@ -7,10 +7,10 @@ import threading
 import time
 
 import httpx
-from fastapi import Depends, HTTPException, Request
+from fastapi import HTTPException, Request
 from google.auth import jwt as gjwt
 
-from . import db, notify
+from . import db
 from .config import settings
 
 CERTS_URL = (
@@ -47,8 +47,8 @@ def verify_firebase(token: str) -> dict:
         raise HTTPException(401, "Invalid or expired sign-in. Sign in again.") from exc
     if claims.get("iss") != f"https://securetoken.google.com/{project}" or not claims.get("sub"):
         raise HTTPException(401, "Token was not issued for this app.")
-    # Access and the admin list key off the email, so it must be one the user proved
-    # they own (Google sign-in and email links both verify it).
+    # ALLOWED_EMAILS keys off the email, so it must be one the user proved they own.
+    # Google sign-in and email links both verify it.
     if not claims.get("email_verified"):
         raise HTTPException(403, "Verify your email address, then sign in again.")
     return claims
@@ -66,59 +66,43 @@ def claims_from_request(request: Request) -> dict:
     raise HTTPException(401, "Sign in required.")
 
 
+def allowed(email: str) -> bool:
+    """ALLOWED_EMAILS: exact addresses and "@domain" entries. Empty allows everyone."""
+    rules = settings.allowed_emails
+    if not rules:
+        return True
+    domain = "@" + email.rsplit("@", 1)[-1]
+    return email in rules or domain in rules
+
+
 def upsert_user(claims: dict) -> dict:
     email = (claims.get("email") or "").lower()
     if not email:
         raise HTTPException(400, "Your sign-in has no email address.")
-    is_admin = email in settings.admin_emails
-    approved = is_admin or settings.auto_approve
-    user = db.one(
+    if not allowed(email):
+        raise HTTPException(403, "This Afterparty is private. Ask its owner to add your email.")
+    return db.one(
         """
-        INSERT INTO users (firebase_uid, email, name, photo_url, status, role, approved_at)
-        VALUES (%(uid)s, %(email)s, %(name)s, %(photo)s, %(status)s, %(role)s,
-                CASE WHEN %(status)s = 'approved' THEN now() END)
+        INSERT INTO users (firebase_uid, email, name, photo_url)
+        VALUES (%(uid)s, %(email)s, %(name)s, %(photo)s)
         ON CONFLICT (firebase_uid) DO UPDATE SET
             email = EXCLUDED.email,
             name = COALESCE(EXCLUDED.name, users.name),
             photo_url = COALESCE(EXCLUDED.photo_url, users.photo_url),
             last_seen_at = now()
-        RETURNING *, (xmax = 0) AS inserted
+        RETURNING *
         """,
         {
             "uid": claims["sub"],
             "email": email,
             "name": claims.get("name"),
             "photo": claims.get("picture"),
-            "status": "approved" if approved else "pending",
-            "role": "admin" if is_admin else "user",
         },
     )
-    if user.pop("inserted", False) and user["status"] == "pending":
-        notify.access_requested(user["email"], user["name"])
-    # An address added to ADMIN_EMAILS after first sign-in still gets promoted.
-    if is_admin and (user["role"] != "admin" or user["status"] != "approved"):
-        user = db.one(
-            "UPDATE users SET role = 'admin', status = 'approved',"
-            " approved_at = COALESCE(approved_at, now()) WHERE id = %s RETURNING *",
-            (user["id"],),
-        )
-    return user
 
 
 def current_user(request: Request) -> dict:
     return upsert_user(claims_from_request(request))
-
-
-def approved_user(user: dict = Depends(current_user)) -> dict:
-    if user["status"] != "approved":
-        raise HTTPException(403, "Your access request is still pending.")
-    return user
-
-
-def admin_user(user: dict = Depends(approved_user)) -> dict:
-    if user["role"] != "admin":
-        raise HTTPException(403, "Admins only.")
-    return user
 
 
 def verify_scheduler(request: Request) -> None:

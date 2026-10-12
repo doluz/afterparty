@@ -18,7 +18,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from . import connector, crypto, db, demo, sync
-from .auth import admin_user, approved_user, current_user, verify_scheduler
+from .auth import current_user, verify_scheduler
 from .config import settings
 from .partiful_api import PartifulApiError, PartifulAuthError, refresh
 from .people import FollowFilter, PeopleFilters, SocialFilter, query_people, to_csv
@@ -120,10 +120,7 @@ def _me(user: dict) -> dict:
         (user["id"],),
     )
     return {
-        "user": {
-            k: user[k]
-            for k in ("id", "email", "name", "photo_url", "status", "role", "onboarded_at")
-        },
+        "user": {k: user[k] for k in ("id", "email", "name", "photo_url", "onboarded_at")},
         "partiful": acct,
         "sync": run,
     }
@@ -135,7 +132,7 @@ def me(user: dict = Depends(current_user)):
 
 
 @app.post("/api/me/onboarded")
-def onboarded(user: dict = Depends(approved_user)):
+def onboarded(user: dict = Depends(current_user)):
     db.run(
         "UPDATE users SET onboarded_at = COALESCE(onboarded_at, now()) WHERE id = %s", (user["id"],)
     )
@@ -158,7 +155,7 @@ class ConnectBody(BaseModel):
 
 
 @app.post("/api/partiful/connect")
-def connect_partiful(body: ConnectBody, user: dict = Depends(approved_user)):
+def connect_partiful(body: ConnectBody, user: dict = Depends(current_user)):
     try:
         token = refresh(body.refreshToken, body.apiKey)
     except PartifulAuthError as exc:
@@ -195,7 +192,7 @@ def _forget_other_account(user_id: int, partiful_uid: str) -> None:
 
 
 @app.post("/api/dev/demo-connect")
-def demo_connect(user: dict = Depends(approved_user)):
+def demo_connect(user: dict = Depends(current_user)):
     """Local walkthroughs only: connect a synthetic Partiful account and play a
     first sync with made-up people. 404 anywhere dev auth is off (all of prod)."""
     if not settings.dev_auth_allowed:
@@ -216,7 +213,7 @@ def demo_connect(user: dict = Depends(approved_user)):
 
 
 @app.delete("/api/partiful")
-def disconnect_partiful(user: dict = Depends(approved_user)):
+def disconnect_partiful(user: dict = Depends(current_user)):
     db.run("DELETE FROM partiful_accounts WHERE user_id = %s", (user["id"],))
     return {"ok": True}
 
@@ -227,14 +224,14 @@ class SyncBody(BaseModel):
 
 
 @app.post("/api/sync")
-def start_sync(body: SyncBody | None = None, user: dict = Depends(approved_user)):
+def start_sync(body: SyncBody | None = None, user: dict = Depends(current_user)):
     if not db.one("SELECT 1 FROM partiful_accounts WHERE user_id = %s", (user["id"],)):
         raise HTTPException(409, "Connect Partiful first.")
     return sync.start_sync(user["id"], "manual", full=bool(body and body.full))
 
 
 @app.get("/api/sync")
-def sync_status(user: dict = Depends(approved_user)):
+def sync_status(user: dict = Depends(current_user)):
     sync.active_run(user["id"])  # closes stale runs
     return db.one(
         "SELECT * FROM sync_runs WHERE user_id = %s ORDER BY started_at DESC LIMIT 1",
@@ -249,7 +246,7 @@ def sync_everyone():
 
 # ------------------------------------------------------------------ data
 @app.get("/api/stats")
-def stats(user: dict = Depends(approved_user)):
+def stats(user: dict = Depends(current_user)):
     uid = user["id"]
     s = db.one(
         met_sql("""
@@ -277,7 +274,7 @@ def stats(user: dict = Depends(approved_user)):
 
 
 @app.get("/api/events")
-def list_events(user: dict = Depends(approved_user)):
+def list_events(user: dict = Depends(current_user)):
     return db.all_(
         """
         SELECT e.event_id AS id, e.title, e.starts_at, e.ends_at, e.timezone, e.location,
@@ -296,7 +293,7 @@ def list_events(user: dict = Depends(approved_user)):
 
 
 @app.get("/api/events/{event_id}")
-def event_detail(event_id: str, user: dict = Depends(approved_user)):
+def event_detail(event_id: str, user: dict = Depends(current_user)):
     uid = user["id"]
     event = db.one(
         "SELECT event_id AS id, title, starts_at, ends_at, timezone, location, image_url, role,"
@@ -343,14 +340,14 @@ def people(
     f: PeopleFilters = Depends(_filters),
     limit: int = Query(60, ge=1, le=200),
     offset: int = Query(0, ge=0),
-    user: dict = Depends(approved_user),
+    user: dict = Depends(current_user),
 ):
     total, rows = query_people(user["id"], f, limit=limit, offset=offset)
     return {"total": total, "people": rows}
 
 
 @app.get("/api/people/map")
-def people_map(f: PeopleFilters = Depends(_filters), user: dict = Depends(approved_user)):
+def people_map(f: PeopleFilters = Depends(_filters), user: dict = Depends(current_user)):
     """Everyone matching, lightly: enough to draw the map by designation."""
     total, rows = query_people(user["id"], f, limit=MAP_LIMIT, with_events=False)
     return {
@@ -371,7 +368,7 @@ def people_map(f: PeopleFilters = Depends(_filters), user: dict = Depends(approv
 
 
 @app.get("/api/people/{person_id}")
-def person(person_id: str, user: dict = Depends(approved_user)):
+def person(person_id: str, user: dict = Depends(current_user)):
     _, rows = query_people(user["id"], PeopleFilters(ids=[person_id]), limit=1, met_only=False)
     if not rows:
         raise HTTPException(404, "Person not found.")
@@ -379,7 +376,7 @@ def person(person_id: str, user: dict = Depends(approved_user)):
 
 
 @app.post("/api/people/export")
-def export_people(f: PeopleFilters, user: dict = Depends(approved_user)):
+def export_people(f: PeopleFilters, user: dict = Depends(current_user)):
     """CSV of everyone matching the filters, or only the selected ids."""
     _, rows = query_people(user["id"], f, limit=None)
     stamp = datetime.now(UTC).strftime("%Y-%m-%d")
@@ -402,7 +399,7 @@ class FollowUpBody(BaseModel):
 
 
 @app.put("/api/people/{person_id}/follow-up")
-def set_follow_up(person_id: str, body: FollowUpBody, user: dict = Depends(approved_user)):
+def set_follow_up(person_id: str, body: FollowUpBody, user: dict = Depends(current_user)):
     if not db.one(
         "SELECT 1 FROM guests WHERE user_id = %s AND person_id = %s LIMIT 1",
         (user["id"], person_id),
@@ -422,39 +419,6 @@ def set_follow_up(person_id: str, body: FollowUpBody, user: dict = Depends(appro
             (user["id"], person_id, body.status, body.note),
         )
     return {"ok": True}
-
-
-# ------------------------------------------------------------------ admin
-@app.get("/api/admin/users")
-def admin_users(_admin: dict = Depends(admin_user)):
-    return db.all_(
-        """
-        SELECT u.id, u.email, u.name, u.photo_url, u.status, u.role, u.created_at, u.approved_at,
-               u.last_seen_at, a.display_name AS partiful_name, a.last_sync_at, a.token_error,
-               (SELECT count(*) FROM events e WHERE e.user_id = u.id) AS events
-        FROM users u LEFT JOIN partiful_accounts a ON a.user_id = u.id
-        ORDER BY (u.status = 'pending') DESC, u.created_at DESC
-        """
-    )
-
-
-class AdminUserBody(BaseModel):
-    status: Literal["pending", "approved", "denied"]
-
-
-@app.post("/api/admin/users/{user_id}")
-def admin_set_status(user_id: int, body: AdminUserBody, admin: dict = Depends(admin_user)):
-    if user_id == admin["id"]:
-        raise HTTPException(400, "You cannot change your own access.")
-    row = db.one(
-        "UPDATE users SET status = %s,"
-        " approved_at = CASE WHEN %s = 'approved' THEN COALESCE(approved_at, now()) END"
-        " WHERE id = %s RETURNING id, status",
-        (body.status, body.status, user_id),
-    )
-    if not row:
-        raise HTTPException(404, "User not found.")
-    return row
 
 
 # ------------------------------------------------------------------ spa

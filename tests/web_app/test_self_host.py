@@ -1,4 +1,4 @@
-"""Self-hosting settings: cron secret, auto-approve, the per-instance connector."""
+"""Self-hosting settings: cron secret, the email allowlist, the per-instance connector."""
 
 from __future__ import annotations
 
@@ -21,13 +21,20 @@ def test_cron_secret_runs_the_daily_sync(client, monkeypatch):
     assert "users" in ok.json()
 
 
-def test_auto_approve_lets_new_users_in(client, monkeypatch):
+def test_allowlist_keeps_a_shared_instance_private(client, monkeypatch):
     from afterparty import auth
 
-    monkeypatch.setattr(auth, "settings", replace(auth.settings, auto_approve=True))
-    me = client.get("/api/me", headers=as_("friend@example.com")).json()
-    assert me["user"]["status"] == "approved"
-    assert me["user"]["role"] == "user"  # approved is not admin
+    rules = ["friend@example.com", "@team.example.com"]
+    monkeypatch.setattr(auth, "settings", replace(auth.settings, allowed_emails=rules))
+    assert client.get("/api/me", headers=as_("friend@example.com")).status_code == 200
+    assert client.get("/api/me", headers=as_("ana@team.example.com")).status_code == 200
+    r = client.get("/api/me", headers=as_("stranger@example.com"))
+    assert r.status_code == 403
+    assert "private" in r.json()["detail"]
+
+
+def test_empty_allowlist_lets_everyone_in(client):
+    assert client.get("/api/me", headers=as_("anyone@example.com")).status_code == 200
 
 
 def test_connector_zip_allows_only_this_instance(client, monkeypatch):
