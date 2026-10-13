@@ -32,6 +32,7 @@ gcp = ["google-cloud-kms>=3.0"]
 [project.urls]
 Homepage = "https://github.com/doluz/afterparty"
 Issues = "https://github.com/doluz/afterparty/issues"
+"Hosted version" = "https://afterparty-network.web.app"
 
 [project.scripts]
 afterparty-dev = "afterparty.dev:main"

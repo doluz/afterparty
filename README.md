@@ -22,6 +22,7 @@
   <a href="docs/self-hosting.md">Self-hosting</a> ·
   <a href="docs/connector.md">Connector</a> ·
   <a href="docs/architecture.md">Architecture</a> ·
+  <a href="https://afterparty-network.web.app">Hosted version</a> ·
   <a href="#use-with-ai-agents">AI agents</a> ·
   <a href="https://github.com/doluz/afterparty/releases/latest">Demo video</a> ·
   <a href="#author">Author</a>
@@ -35,6 +36,9 @@ Afterparty reads your Partiful account through Partiful's web API: the events on
 each event you attended, hosted or will go to. It stores everything in PostgreSQL, deduplicates people across events,
 classifies each person by the bio, and serves a web app to search, filter, map and export them. One Docker image,
 no browser automation on the server.
+
+**Hosted version:** do not want to run a server? Use [afterparty-network.web.app](https://afterparty-network.web.app).
+It is invite-only: sign in with Google and request access. Same code, plus admin approval.
 
 ## Features
 
