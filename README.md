@@ -152,41 +152,47 @@ can work on the app without a Partiful account.
 
 ## Use with AI agents
 
-Afterparty is ready for AI agents in two ways:
+Afterparty works with any agent harness:
 
-- **Coding agents** (Claude Code, Codex, Cursor, Gemini CLI, Copilot) read [`AGENTS.md`](AGENTS.md) for the commands, the code map and the rules. [`llms.txt`](llms.txt) indexes the docs.
-- **Any agent that supports Agent Skills** can use the [`afterparty` skill](skills/afterparty/SKILL.md) to set up an instance, query and export your people, and change the code. The skill ships a zero-dependency API client, [`scripts/afterparty.py`](skills/afterparty/scripts/afterparty.py).
+- **The [`afterparty` skill](skills/afterparty/SKILL.md)** (Agent Skills format: `SKILL.md` + `references/` + `scripts/`) teaches an agent to set up an instance, query and export your people, set follow-ups, sync, and change the code. It ships [`scripts/afterparty.py`](skills/afterparty/scripts/afterparty.py), an API client that needs only Python 3.9+.
+- **[`AGENTS.md`](AGENTS.md)** gives coding agents the commands, the code map and the rules. Codex, Cursor, GitHub Copilot and most others read it directly; Claude Code reads it through [`CLAUDE.md`](CLAUDE.md).
+- **[`llms.txt`](llms.txt)** indexes all docs for agents that fetch documentation.
 
 ### Install the skill
 
-```bash
-git clone --depth 1 https://github.com/doluz/afterparty.git /tmp/afterparty
-mkdir -p ~/.claude/skills && cp -r /tmp/afterparty/skills/afterparty ~/.claude/skills/
-```
-
-For other agents, copy `skills/afterparty` into that agent's skills folder, or tell the agent to read `skills/afterparty/SKILL.md`.
+| Harness | How |
+|---------|-----|
+| Claude Code (all projects) | `git clone --depth 1 https://github.com/doluz/afterparty.git /tmp/afterparty && mkdir -p ~/.claude/skills && cp -r /tmp/afterparty/skills/afterparty ~/.claude/skills/` |
+| Claude Code (one project) | Copy `skills/afterparty` into that project's `.claude/skills/` folder. |
+| Any other harness with Agent Skills support | Copy `skills/afterparty` into that harness's skills folder. |
+| Any agent, nothing installed | Start your prompt with: *"Read https://raw.githubusercontent.com/doluz/afterparty/main/skills/afterparty/SKILL.md and follow it."* |
+| Working inside this repository | Nothing to install: the agent reads `AGENTS.md`, which points to the skill. |
 
 ### Give the agent access to your data
 
 In Afterparty, open **Settings > API access for agents** and select **Copy API token**. Then give the agent:
 
 ```bash
-export AFTERPARTY_URL=http://localhost:8080      # your instance
+export AFTERPARTY_URL=http://localhost:8080      # the address of your instance
 export AFTERPARTY_AUTH="Bearer eyJ..."           # the token you copied (Firebase tokens expire after one hour)
 # local mode only, in place of a token:
 export AFTERPARTY_EMAIL=you@example.com
 ```
 
-The client works without an agent too:
+The client works without an agent too. The path is `skills/afterparty/scripts/afterparty.py` in the repository, or `~/.claude/skills/afterparty/scripts/afterparty.py` after you install the skill:
 
 ```bash
+python3 skills/afterparty/scripts/afterparty.py stats
 python3 skills/afterparty/scripts/afterparty.py people --cluster founder --repeat --all
 python3 skills/afterparty/scripts/afterparty.py export investors.csv --cluster investor --social linkedin
+python3 skills/afterparty/scripts/afterparty.py --help     # every command and filter
 ```
 
 The full schema is at `/openapi.json` on every instance.
 
 ### Sample prompts
+
+With the skill installed, ask in plain language. The agent picks the right command and asks you for anything it needs, such as the API token.
 
 **Set up**
 
